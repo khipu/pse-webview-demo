@@ -154,12 +154,15 @@ public class MainActivity extends AppCompatActivity {
 				}
 				Uri parsedUri = Uri.parse(url);
 				PackageManager packageManager = getPackageManager();
+
+				//Intentar ejecutar el intent directamente si el package manager es capaz de resolverlo
 				Intent browseIntent = new Intent(Intent.ACTION_VIEW).setData(parsedUri);
 				if (browseIntent.resolveActivity(packageManager) != null) {
 					startActivity(browseIntent);
 					return true;
 				}
-				//if not activity found, try to parse intent://
+
+				//Si el package manager no pudo obtenerlo intentar parsear un intent de tipo "intent://"
 				if (url.startsWith("intent:")) {
 					try {
 						Intent intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
@@ -167,13 +170,15 @@ public class MainActivity extends AppCompatActivity {
 							startActivity(intent);
 							return true;
 						}
-						//try to find fallback url
+
+						//Usar la url de fallback
 						String fallbackUrl = intent.getStringExtra("browser_fallback_url");
 						if (fallbackUrl != null) {
 							webView.loadUrl(fallbackUrl);
 							return true;
 						}
-						//invite to install
+
+						//Invitar a instalar
 						Intent marketIntent = new Intent(Intent.ACTION_VIEW).setData(
 								Uri.parse("market://details?id=" + intent.getPackage()));
 						if (marketIntent.resolveActivity(packageManager) != null) {
