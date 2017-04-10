@@ -12,50 +12,56 @@ Los puntos relevantes de la app son:
 
 2. Soportar las URLs de tipo intent:// 
 
-	@Override
-	public boolean shouldOverrideUrlLoading(WebView view, String url) {
-
+	webView.setWebViewClient(new WebViewClient() {
+	
 		...
-		
-		Uri parsedUri = Uri.parse(url);
-		PackageManager packageManager = getPackageManager();
-		Intent browseIntent = new Intent(Intent.ACTION_VIEW).setData(parsedUri);
-		
-		//Intentar ejecutar el intent directamente si el package manager es capaz de resolverlo
-		
-		if (browseIntent.resolveActivity(packageManager) != null) {
-			startActivity(browseIntent);
-			return true;
-		}
-		
-		//Si el package manager no pudo obtenerlo intentar parsear un intent de tipo "intent://"
-		if (url.startsWith("intent:")) {
-			try {
-				Intent intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
-				if (intent.resolveActivity(getPackageManager()) != null) {
-					startActivity(intent);
-					return true;
-				}
-				
-				//Usar la url de fallback
-				String fallbackUrl = intent.getStringExtra("browser_fallback_url");
-				if (fallbackUrl != null) {
-					webView.loadUrl(fallbackUrl);
-					return true;
-				}
-				
-				//Invitar a instalar
-				Intent marketIntent = new Intent(Intent.ACTION_VIEW).setData(
-						Uri.parse("market://details?id=" + intent.getPackage()));
-				if (marketIntent.resolveActivity(packageManager) != null) {
-					startActivity(marketIntent);
-					return true;
-				}
-			} catch (URISyntaxException e) {
-				//No es una url de intent
+
+		@Override
+		public boolean shouldOverrideUrlLoading(WebView view, String url) {
+	
+			...
+			
+			Uri parsedUri = Uri.parse(url);
+			PackageManager packageManager = getPackageManager();
+			Intent browseIntent = new Intent(Intent.ACTION_VIEW).setData(parsedUri);
+			
+			//Intentar ejecutar el intent directamente si el package manager es capaz de resolverlo
+			
+			if (browseIntent.resolveActivity(packageManager) != null) {
+				startActivity(browseIntent);
+				return true;
 			}
+			
+			//Si el package manager no pudo obtenerlo intentar parsear un intent de tipo "intent://"
+			if (url.startsWith("intent:")) {
+				try {
+					Intent intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
+					if (intent.resolveActivity(getPackageManager()) != null) {
+						startActivity(intent);
+						return true;
+					}
+					
+					//Usar la url de fallback
+					String fallbackUrl = intent.getStringExtra("browser_fallback_url");
+					if (fallbackUrl != null) {
+						webView.loadUrl(fallbackUrl);
+						return true;
+					}
+					
+					//Invitar a instalar
+					Intent marketIntent = new Intent(Intent.ACTION_VIEW).setData(
+							Uri.parse("market://details?id=" + intent.getPackage()));
+					if (marketIntent.resolveActivity(packageManager) != null) {
+						startActivity(marketIntent);
+						return true;
+					}
+				} catch (URISyntaxException e) {
+					//No es una url de intent
+				}
+			}
+			return true;//no hacer nada
 		}
-		return true;//no hacer nada
+		...
 	}
 
 
