@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="go" type="id">1001</item>
+    <item name="clear" type="id">1002</item>
+    <item name="reload" type="id">1003</item>
+</resources>
